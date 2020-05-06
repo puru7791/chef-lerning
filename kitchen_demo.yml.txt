@@ -1,0 +1,28 @@
+---
+driver: ec2
+aws_ssh_id: yum
+image_id : ami-0fc20dd1da406780b  [ubuntu]
+subnet_id: subnet-c9cceab3
+region: us-east-2
+instance_type: t2.micro
+security_group_ids: ['sg-0b614a27fe6d9b64e']
+
+
+transport:
+ssh_key: "path of pem file"
+connection_timeout: 10
+connection_retries: 3
+username: ubuntu
+
+
+
+
+images_id_centos: ami-01e36b7901e884a10
+
+To find centos ami id from cli
+-------------------------------------------
+aws ec2 describe-images \
+      --owners aws-marketplace \
+      --filters Name=product-code,Values=aw0evgkw8e5c1q413zgy5pjce \
+      --query 'Images[*].[CreationDate,Name,ImageId]' \
+      --filters "Name=name,Values=CentOS Linux 7*"
