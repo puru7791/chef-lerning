@@ -1,0 +1,56 @@
+#Before testing the kitchen.yaml you need to be configured AWS
+#curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+#unzip awscliv2.zip
+#sudo ./aws/install
+# and finally __aws configure__ and configure the IAM credentials 
+---
+driver:
+  name: ec2
+  aws_ssh_key_id: "yum"
+  security_group_ids: ["<your-security_group_id>"]
+  region: us-east-2
+  availability_zone: "b"
+  subnet_id: "<your-subnet_id>"
+  instance_type: "t2.medium"
+  associate_public_ip: true
+
+## The forwarded_port port feature lets you connect to ports on the VM guest via
+## localhost on the host.
+## see also: https://www.vagrantup.com/docs/networking/forwarded_ports.html
+
+#  network:
+#    - ["forwarded_port", {guest: 80, host: 8080}]
+transport:
+  ssh_key: "/home/ubuntu/yum.pem"
+
+provisioner:
+  name: chef_zero
+  # You may wish to disable always updating cookbooks in CI or other testing environments.
+  # For example:
+  #   always_update_cookbooks: <%= !ENV['CI'] %>
+  always_update_cookbooks: true
+
+  ## product_name and product_version specifies a specific Chef product and version to install.
+  ## see the Chef documentation for more details: https://docs.chef.io/workstation/config_yml_kitchen/
+  #  product_name: chef
+  #  product_version: 16
+
+verifier:
+  name: inspec
+
+platforms:
+  - name: ubuntu-18.04
+    driver:
+      image_id: "<your-image_id>"
+    transport:
+      username: "ubuntu"
+#  - name: centos-8
+
+suites:
+  - name: default
+    run_list:
+      - recipe[myopenmrs::default]
+    verifier:
+      inspec_tests:
+        - test/integration/default
+    attributes:
